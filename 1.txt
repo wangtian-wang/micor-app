@@ -1,3 +1,78 @@
+vue.config.js
+
+Vue.config.js
+module.exports = {
+  outputDir: 'driveInsight',
+  lintOnSave: true,
+  productionSourceMap: false,
+  devServer: {
+    proxy: {
+      '/dam/': {
+        target: 'http://10.151.131.181:30000'
+      }
+    },
+    port,
+    historyApiFallback: true,
+    overlay: {
+      warnings: false,
+      errors: true
+    },
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
+  },
+  configureWebpack: {
+    externals: {
+      AMap: 'AMap',
+      AMapUI: 'AMapUI',
+      Loca: 'Loca'
+    }
+  },
+  chainWebpack: config => {
+    config.resolve.symlinks(false); // 用于 npm link, 默认为true 本地链接打包的自己定义的库
+    config.resolve.alias.set('cache', resolve('src/store/cache.js'));
+    config.module
+      .rule('images')
+      .use('url-loader')
+      .loader('url-loader')
+      .options({})
+      .end();
+  }
+};
+
+Main.js
+1： 引入要注册的子应用 import microApps from  ‘./micro-app’；
+
+1：-1 引入需要注册的方法，从乾坤里面
+  import {registerMicroApps, start} from 'qiankun'; import 
+3： 渲染根节点，
+New vue({
+正常执行
+})
+4: 注册微应用
+registerMicroApps(apps, {
+  beforeLoad: [
+    app => {
+      console.log('beforeLoad', app.name);
+    }
+  ],
+  beforeMount: [
+    app => {
+      console.log('beforeMount', app.name);
+    }
+  ],
+  afterUnmount: [
+    app => {
+      console.log('afterUnmount', app.name);
+    }
+  ]
+});
+
+//启动qiankun
+start({prefetch: 'all'});
+
+
+
 注册微应用文件
 
   import actions from 'actions';
