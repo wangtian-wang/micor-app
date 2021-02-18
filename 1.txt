@@ -1,1 +1,21 @@
-hello    i am be modifyed now
+注册微应用文件
+
+  import actions from 'actions';
+  function subActiveRule(router) {
+    if( Array.isArray(router)){
+      return location => {
+        router.some(item => {
+           return location.hash.startWith(item)
+        }
+      }
+    } else {
+     return location => location.hash.startWith(router)
+    }
+  }
+  
+注册action文件
+
+  import { initGlobalState } from 'qiankun';
+  let state = { };
+  const actions = initGlobalState(state);
+  export default actions;
