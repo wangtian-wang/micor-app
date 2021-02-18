@@ -12,6 +12,209 @@
      return location => location.hash.startWith(router)
     }
   }
+  const enviroment = process.env.NODE_ENV === 'production';
+  let microApps = [
+        {
+        name: 'subapp-login',  ？？？ 这个name是打包过后的包名字吗？
+        entry: isProduction ? '/login/' : `http://${location.hostname}:31900`,
+        container: '#micro-login',
+        activeRule: genActiveRule('#/login'),
+        props: {store, router, i18n, bus,actions} 将通讯的方法引入进来，传递给子应用，这样每个子应用就可以和主应用通信了
+      },
+
+  ]
+  在主项目里面提供一个容器，来挂载子应用
+登录的模块包含其中，默认启动的是登录页面 如何设置默认的启动页面
+<template>
+  <div id="root">
+    <!-- 登录页渲染容器 -->
+    <div v-show="$route.path === '/login'" id="micro-login"></div>
+    <!-- 主项目路由入口 -->
+    <router-view />
+    <!-- 在登录认证之后渲染左侧栏，避免左侧栏空白--> 路由守卫的配置
+    <template v-if="$route.path !== '/login'">
+      <!-- 渲染子项目的容器 layout为侧边栏组件 -->
+      <layout v-show="isMicroApps" />
+    </template>
+  </div>
+</template>
+<layout >组件
+
+<template>
+  <div class="p-layout"> 
+    <div class="layout-content">
+      <left-menu class="left-menu" :common-data="$data" :common-props="$props"></left-menu>
+        <!-- qiankun 子应用挂载容器 -->
+      <div id="micro-apps"></div>
+    </div>
+  </div>
+</template>
+路由守卫的判断
+router.beforeEach((to, from, next) => {
+  let account = window.localStorage.getItem('account') || window.sessionStorage.getItem('account');
+  if (to.path === '/login') {
+    next();
+  } else {
+    if (account) {
+      //路由不匹配并且子项目路径也不匹配
+      if (to.matched.length == 0 && !to.path.startsWith('/layout')) {
+        next('/login');
+      } else {
+        next();
+      }
+    } else {
+      next('/login');
+    }
+  }
+});
+
+子项目的配置
+Vue.config.js
+
+//打包完成之后，包名称；
+const packageName = require('./package').name;
+
+//打包环境
+const publicPath = process.env.NODE_ENV === 'production' ? '/label/' : '/';
+module.exports = {
+  publicPath,
+  outputDir: 'driveInsight',
+  lintOnSave: true,
+  productionSourceMap: false,
+  devServer: {
+    historyApiFallback: true,
+    port,
+    overlay: {
+      warnings: false,
+      errors: true
+    },
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    // https: true,
+    proxy: {
+      '/dam/': {
+        target: 'http://10.151.131.181:30000'
+      }
+    }
+  },
+  configureWebpack: {   打包规则：
+    output: {
+      library: `${packageName}`,  打包过后，子应用的名字就是package.json里面配置的name
+      libraryTarget: 'umd',
+      jsonpFunction: `webpackJsonp_${packageName}`
+    }
+  },
+  chainWebpack: config => {
+    config.resolve.symlinks(false);
+    config.module
+      .rule('images')
+      .use('url-loader')
+      .loader('url-loader')
+      .options({})
+      .end();
+  }
+};
+Main.js
+import './public-path'; 是否是运行在乾坤里面
+import actions from '@/shared/actions'; 引状态传递的函数
+function emptyAction() {
+  // 警告：提示当前使用的是空 Action
+  console.warn('Current execute action is empty!');
+}
+
+class Actions {
+  // 默认值为空 Action
+  actions = {
+    onGlobalStateChange: emptyAction,
+    setGlobalState: emptyAction
+  };
+
+  /**
+   * 设置 actions
+   */
+  setActions(actions) {
+    this.actions = actions;
+  }
+
+  /**
+   * 映射
+   */
+  onGlobalStateChange(...args) {
+    return this.actions.onGlobalStateChange(...args);
+  }
+
+  /**
+   * 映射
+   */
+  setGlobalState(...args) {
+    return this.actions.setGlobalState(...args); 这个函数的作用是啥，推测：告诉主应用，当前的应用是那个应用吗？
+  }
+}
+
+const actions = new Actions();
+
+export default actions;
+
+
+配置实例化的子应用
+function render(props = {}) {
+props  接收过来主应用传递的属性
+  if (props) {
+      actions.setActions(props.actions); 向主应用传递状态
+  }
+  const {container, bus, store, AMap, AMapUI} = props;
+
+  router = new VueRouter({
+    routes
+  });
+
+  router.beforeEach((to, from, next) => {
+    actions.setGlobalState(to.meta);
+    next();
+  });
+  Vue.prototype.$bus = bus;
+  Vue.prototype.$store = store;
+
+  instance = new Vue({
+    router,
+    i18n,
+    data() {
+      return {
+        parentRouter: props.router,
+        parentVuex: store,
+        parentAMap: AMap,
+        parentAMapUI: AMapUI
+      };
+    },
+    render: h => h(App)
+  }).$mount(container ? container.querySelector('#subapp-label') : '#subapp-label');
+}
+
+
+导出钩子函数
+export async function bootstrap() {
+  console.log('subapp-label-manage app bootstraped');
+}
+export async function mount(props) {
+  render(props);
+}
+
+export async function unmount() {
+  instance.$destroy();
+  instance = null;
+  router = null;
+}
+
+App.vue
+Package.json
+{
+	"name": "subapp-label", 打包之后子应用的名字
+
+}
+
+  
+  
   
 注册action文件
 
