@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <a href="#/app1">app1</a>  <br>
+  <a href="#/app2">1pp2</a>
+
+  <script src="./lib/single-spa.js"></script>
+  <script>
+    /**
+     * registerSubApps 加ོ载ོ应ོ用ོ
+     * start 挂ོ载ོ应ོ用ོ
+     * 
+     */
+    singleSpa.registerSubApps('app1',
+      async() => {
+          return {
+              bootstrap:async() => {
+                console.log('bootstrap in html')
+              },
+              mount: async()=> {
+                console.log('mount in html')
+
+              },
+              unmount: async() => {
+                console.log('unmount in html')
+
+              }
+          }
+      },
+      location => location.hash.startsWith('#/app1'),
+      {store: {name: 'app1'}}
+  );
+  singleSpa.registerSubApps('app2',
+      async() => {
+          return {
+              bootstrap:async() => {
+                console.log('bootstrap in html2')
+              },
+              mount: async()=> {
+                console.log('mount in html2')
+
+              },
+              unmount: async() => {
+                console.log('unmount in html2')
+
+              }
+          }
+      },
+      location => location.hash.startsWith('#/app2'),
+      {store: {name: 'app2'}}
+  )
+  singleSpa.start()
+  </script>
+</body>
+</html>
