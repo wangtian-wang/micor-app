@@ -18,3 +18,4 @@ export function isActived (app) {
 export function shouldBeActived (app) {
     return app.activeRule(window.location)
 }
+hello
