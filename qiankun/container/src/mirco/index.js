@@ -3,20 +3,21 @@ import router from './router/index.js';
 const isActiveMicroApp = (...args) => {
   return args.includes(location.pathname);
 };
+const isProduction = node.process.env;
 const microApps = [
   {
     name: 'micro-app1',
-    activeRule: '激活规则',
+    activeRule: isActiveMicroApp(['#/micro-app1']),
     container: 'micro-apps',
     props: { store, router },
-    entry: '//localhost:7000'
+    entry: isProduction ? 'http://${location.hostname}:7000' : '/micro-app1/'
   },
   {
     name: 'micro-app2',
-    activeRule: '激活规则',
+    activeRule: isActiveMicroApp(['#/micro-app2']),
     container: 'micro-apps',
     props: { store, router },
-    entry: '//localhost:7100'
+    entry: isProduction ? 'http://${location.hostname}:7100' : '/micro-app2/'
   }
 ];
 export default microApps;
