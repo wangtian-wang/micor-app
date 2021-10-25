@@ -32,7 +32,7 @@
                 Object.keys(this.modifiedProperty).forEach(prop => {
                     window[prop] = this.modifiedProperty[prop];
                 })
-
+    
             }
             inactive(){
                 for(let key in window){
@@ -45,7 +45,7 @@
                 }
             }
         }
-
+    
         let sandBox = new SandBox();
         ((proxyWindow)=> {
             window.a = 1;
@@ -53,9 +53,10 @@
             console.log(window.a);
             proxyWindow.active();
             console.log(window.a)
-
+    
         })(sandBox)
     ```
 * 代ོ理ོ沙ོ箱ོ 可多ོ应ོ用ོ沙ོ箱ོ
     ```js
     ```
+

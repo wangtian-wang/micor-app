@@ -1,6 +1,13 @@
 .DS_Store
 node_modules
 /dist
+micro-spa/node_modules
+qiankun-demo/micro-practise/app1/node_modules
+qiankun-demo/micro-practise/app2/node_modules
+qiankun-demo/micro-practise/main/node_modules
+single-spa-demo/single-spa/node_modules
+single-spa-demo/single-spa-subapp/node_modules
+
 
 
 # local env files
